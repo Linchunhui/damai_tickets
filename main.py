@@ -13,7 +13,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 class Concert(object):
-    def __init__(self, date, session, price, real_name, nick_name, ticket_num, damai_url, target_url, driver_path):
+    def __init__(self, date, session, price, real_name, nick_name, ticket_num, damai_url, target_url, driver_path, time_interval):
         self.date = date  # 日期序号
         self.session = session  # 场次序号优先级
         self.price = price  # 票价序号优先级
@@ -28,6 +28,7 @@ class Concert(object):
         self.target_url = target_url  # 目标购票网址
         self.driver_path = driver_path  # 浏览器驱动地址
         self.driver = None
+        self.time_interval = 0.5
 
     def isClassPresent(self, item, name, ret=False):
         try:
@@ -72,6 +73,7 @@ class Concert(object):
 
     def login(self):
         print(u'###开始登录###')
+        print(self.target_url)
         self.driver.get(self.target_url)
         WebDriverWait(self.driver, 10, 0.1).until(EC.title_contains('商品详情'))
         self.set_cookie()
@@ -84,20 +86,26 @@ class Concert(object):
             print(u'###成功获取Cookie，重启浏览器###')
             self.driver.quit()
 
-        options = webdriver.ChromeOptions()
+        chrome_options = webdriver.ChromeOptions()
+        options = webdriver.chrome.options.Options()
         # 禁止图片、js、css加载
         prefs = {"profile.managed_default_content_settings.images": 2,
                  "profile.managed_default_content_settings.javascript": 1,
                  'permissions.default.stylesheet': 2}
         mobile_emulation = {"deviceName": "Nexus 6"}
+        chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
         options.add_experimental_option("prefs", prefs)
         options.add_experimental_option("mobileEmulation", mobile_emulation)
+        # options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36')
         options.add_argument("--disable-blink-features=AutomationControlled")
         # 更换等待策略为不等待浏览器加载完全就进行下一步操作
         capa = DesiredCapabilities.CHROME
         capa["pageLoadStrategy"] = "none"
         self.driver = webdriver.Chrome(
-            executable_path=self.driver_path, options=options, desired_capabilities=capa)
+            executable_path=self.driver_path,
+            options=chrome_options, desired_capabilities=capa)
+            # options=options, desired_capabilities=capa)
+
         # 登录到具体抢购页面
         self.login()
         self.driver.refresh()
@@ -125,6 +133,7 @@ class Concert(object):
 
     def choose_ticket(self):
         print(u"###进入抢票界面###")
+        # import pdb;pdb.set_trace()
         # 如果跳转到了确认界面就算这步成功了，否则继续执行此步
         while self.driver.title.find('订单确认') == -1:
             self.num += 1  # 尝试次数加1
@@ -134,7 +143,7 @@ class Concert(object):
 
             # 确认页面刷新成功
             try:
-                box = WebDriverWait(self.driver, 1, 0.1).until(
+                box = WebDriverWait(self.driver, 1, self.time_interval).until(
                     EC.presence_of_element_located((By.ID, 'app')))
             except:
                 raise Exception(u"***Error: 页面刷新出错***")
@@ -162,15 +171,15 @@ class Concert(object):
             if "缺货" in buybutton_text:
                 raise Exception("---已经缺货了---")
 
-            sleep(0.1)
+            sleep(self.time_interval)
             buybutton.click()
-            box = WebDriverWait(self.driver, 2, 0.1).until(
+            box = WebDriverWait(self.driver, 2, self.time_interval).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '.sku-pop-wrapper')))
 
             try:
-                session = WebDriverWait(self.driver, 2, 0.1).until(
+                session = WebDriverWait(self.driver, 2, self.time_interval).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'sku-times-card')))    # 日期、场次和票档进行定位
-                price = WebDriverWait(self.driver, 2, 0.1).until(
+                price = WebDriverWait(self.driver, 2, self.time_interval).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'sku-tickets-card')))  # 日期、场次和票档进行定位
                 date = None                                      # 暂不支持日期
 
@@ -224,9 +233,9 @@ class Concert(object):
 
                 for i in toBeClicks:
                     i.click()
-                    sleep(0.05)
+                    sleep(self.time_interval)
 
-                WebDriverWait(self.driver, 1, 0.1).until(
+                WebDriverWait(self.driver, 1, self.time_interval).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'bui-dm-sku-counter')))
 
             except Exception as e:
@@ -251,17 +260,20 @@ class Concert(object):
                     ticket_num_up.click()
                 buybutton.click()
                 self.status = 4
-                WebDriverWait(self.driver, 2, 0.1).until(
+                WebDriverWait(self.driver, 2, self.time_interval).until(
                     EC.title_contains("确认"))
                 break
             else:
                 raise Exception(f"未定义按钮：{buybutton_text}")
 
     def check_order(self):
+        # import pdb;pdb.set_trace()
         if self.status in [3, 4, 5]:
-            WebDriverWait(self.driver, 2, 0.1)\
-                .until(EC.presence_of_element_located((By.CLASS_NAME, 'icondanxuan-weixuan_')))\
-                .click()
+            for _ in self.real_name:
+                WebDriverWait(self.driver, 2, self.time_interval)\
+                    .until(EC.presence_of_element_located((By.CLASS_NAME, 'icondanxuan-weixuan_')))\
+                    .click()
+                self.driver.execute_script("window.scrollBy(0, 300);")
 
             comfirmBtn = self.driver.find_element(
                 By.XPATH, '//*[@id="dmOrderSubmitBlock_DmOrderSubmitBlock"]/div[2]/div/div[2]/div[3]/div[2]')
@@ -269,7 +281,7 @@ class Concert(object):
             # 判断title是不是支付宝
             print(u"###等待跳转到--付款界面--，可自行刷新，若长期不跳转可选择-- CRTL+C --重新抢票###")
             try:
-                WebDriverWait(self.driver, 3600, 0.1).until(
+                WebDriverWait(self.driver, 3600, 0.3).until(
                     EC.title_contains('支付宝'))
             except:
                 raise Exception(u'***Error: 长期跳转不到付款界面***')
@@ -285,7 +297,7 @@ if __name__ == '__main__':
             config = loads(f.read())
             # params: 场次优先级，票价优先级，实名者序号, 用户昵称， 购买票数， 官网网址， 目标网址, 浏览器驱动地址
         con = Concert(config['date'], config['sess'], config['price'], config['real_name'], config['nick_name'],
-                      config['ticket_num'], config['damai_url'], config['target_url'], config['driver_path'])
+                      config['ticket_num'], config['damai_url'], config['target_url'], config['driver_path'], config['time_interval'])
         con.enter_concert()  # 进入到具体抢购页面
     except Exception as e:
         print(e)
@@ -293,8 +305,10 @@ if __name__ == '__main__':
 
     while True:
         try:
+            # import pdb;pdb.set_trace()
             con.choose_ticket()
             con.check_order()
+            pass
         except Exception as e:
             con.driver.get(con.target_url)
             print(e)
