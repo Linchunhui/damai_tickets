@@ -1,13 +1,6 @@
 # 大麦网抢票脚本
-
-基于 [AnTi-anti/damai_ticket](https://github.com/AnTi-anti/damai_ticket) 开源版本进行修改
-
-> 2023.03.04 修改使抢票脚本对部分演唱会有效
-> 
-> 2023.03.20 对应页面更新了class_name, 但是出现新机制触发机器验证无法完成下单
->
->
-> 2023.03.23 感谢 @wuliang9524 提供的解决方案, 需要修改chromedriver以隐藏爬虫标志
+> 2023.05.29 
+> 默认config为2023五月天杭州站6.18场，2人票
 
 ## Chromedriver 修改
 
