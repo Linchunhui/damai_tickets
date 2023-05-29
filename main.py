@@ -28,7 +28,7 @@ class Concert(object):
         self.target_url = target_url  # 目标购票网址
         self.driver_path = driver_path  # 浏览器驱动地址
         self.driver = None
-        self.time_interval = 0.5
+        self.time_interval = time_interval
 
     def isClassPresent(self, item, name, ret=False):
         try:
