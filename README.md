@@ -2,6 +2,10 @@
 > 2023.05.29 
 > 默认config为2023五月天杭州站6.18场，2人票
 
+PS：
+ - time_interval可以设置高一点，防止被反爬虫；
+ - 谷歌浏览器和chromdriver推荐下载老版本比如88、90
+
 ## Chromedriver 修改
 
 1. 下载Hexedit或者使用Vscode中的Hexedit插件
@@ -20,7 +24,7 @@
     "real_name": [1],
     "nick_name": "",
     "ticket_num": 3,
-    "driver_path": "./chromedriver.exe",
+    "driver_path": "./chromedriver",  # windows 填 ./chromedriver.exe
     "damai_url": "https://www.damai.cn/",
     "target_url": "https://m.damai.cn/damai/detail/item.html?itemId=704494827883&spm=a2o71.category.itemlist.ditem_3"
 }
