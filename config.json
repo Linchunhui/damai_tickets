@@ -1,11 +1,11 @@
 {
-    "date": [1],
+    "date": [],
     "sess": [1],
-    "price": [2],
-    "real_name": [1],
+    "price": [5],
+    "real_name": [1, 2],
     "nick_name": "",
-    "ticket_num": 3,
-    "driver_path": "./chromedriver.exe",
+    "ticket_num": 2,
+    "driver_path": "./chromedriver",
     "damai_url": "https://www.damai.cn/",
-    "target_url": "https://m.damai.cn/damai/detail/item.html?itemId=704494827883&spm=a2o71.category.itemlist.ditem_3"
+    "target_url": "https://m.damai.cn/damai/detail/item.html?itemId=721069251830&spm=a2o71.home.snatch_ticket.item&sqm=dianying.h5.unknown.value",
 }
