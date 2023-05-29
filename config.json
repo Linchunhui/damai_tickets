@@ -8,4 +8,5 @@
     "driver_path": "./chromedriver",
     "damai_url": "https://www.damai.cn/",
     "target_url": "https://m.damai.cn/damai/detail/item.html?itemId=721069251830&spm=a2o71.home.snatch_ticket.item&sqm=dianying.h5.unknown.value",
+    "time_interval": 0.2
 }
