@@ -103,8 +103,8 @@ class Concert(object):
         capa["pageLoadStrategy"] = "none"
         self.driver = webdriver.Chrome(
             executable_path=self.driver_path,
-            options=chrome_options, desired_capabilities=capa)
-            # options=options, desired_capabilities=capa)
+            # options=chrome_options, desired_capabilities=capa)
+            options=options, desired_capabilities=capa)
 
         # 登录到具体抢购页面
         self.login()
